@@ -136,6 +136,7 @@ export const insertUserSchema = createInsertSchema(users).omit({
 
 export const insertApiKeySchema = createInsertSchema(apiKeys).omit({
   id: true,
+  key: true, // Auto-generated
   createdAt: true,
   requestCount: true,
   lastUsedAt: true,
