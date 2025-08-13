@@ -5,11 +5,21 @@ import * as schema from "@shared/schema";
 
 neonConfig.webSocketConstructor = ws;
 
-if (!process.env.DATABASE_URL) {
-  throw new Error(
-    "DATABASE_URL must be set. Did you forget to provision a database?",
-  );
+let poolVar: Pool | undefined;
+let dbVar: any;
+
+if (process.env.DATABASE_URL) {
+  poolVar = new Pool({ connectionString: process.env.DATABASE_URL });
+  dbVar = drizzle({ client: poolVar, schema });
+} else {
+  // Allow app to boot without DB (e.g., on Heroku before config), but throw on actual DB use
+  console.warn("DATABASE_URL not set; running in no-db mode. Set DATABASE_URL to enable persistence.");
+  dbVar = new Proxy({}, {
+    get() {
+      throw new Error("DATABASE_URL must be set to use the database. Configure it in Heroku Config Vars.");
+    }
+  });
 }
 
-export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-export const db = drizzle({ client: pool, schema });
+export const pool = poolVar as any;
+export const db = dbVar as any;
