@@ -338,7 +338,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid API key" });
       }
       
-      if (keyRecord.requestCount >= keyRecord.requestLimit) {
+      if ((keyRecord.requestCount || 0) >= (keyRecord.requestLimit || 10000)) {
         return res.status(429).json({ message: "Rate limit exceeded" });
       }
       

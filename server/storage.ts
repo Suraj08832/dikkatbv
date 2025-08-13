@@ -383,7 +383,7 @@ export class DatabaseStorage implements IStorage {
 
     return {
       totalFiles: totalFilesResult.count,
-      totalSize: totalSizeResult[0]?.totalSize || 0,
+      totalSize: totalSizeResult?.totalSize || 0,
       cleanupEligible: cleanupEligibleResult.count,
     };
   }

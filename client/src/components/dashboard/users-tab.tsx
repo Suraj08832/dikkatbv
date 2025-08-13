@@ -39,13 +39,18 @@ export function UsersTab() {
   });
 
   // Fetch user stats
-  const { data: userStats, isLoading: statsLoading } = useQuery({
+  const { data: userStats, isLoading: statsLoading } = useQuery<{
+    totalUsers: number;
+    activeApiKeys: number;
+    requestsToday: number;
+    rateLimited: number;
+  }>({
     queryKey: ["/api/stats/users"],
     retry: false,
   });
 
   // Fetch user's API keys
-  const { data: apiKeys, isLoading: apiKeysLoading } = useQuery({
+  const { data: apiKeys, isLoading: apiKeysLoading } = useQuery<any[]>({
     queryKey: ["/api/users", user?.id, "api-keys"],
     enabled: !!user?.id,
     retry: false,

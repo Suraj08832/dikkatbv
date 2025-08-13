@@ -10,7 +10,7 @@ export function LogsTab() {
   const [levelFilter, setLevelFilter] = useState("all");
 
   // Fetch logs
-  const { data: logs, isLoading: logsLoading, refetch } = useQuery({
+  const { data: logs, isLoading: logsLoading, refetch } = useQuery<any[]>({
     queryKey: ["/api/logs"],
     retry: false,
   });

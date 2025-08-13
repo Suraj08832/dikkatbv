@@ -13,13 +13,17 @@ export function FilesTab() {
   const [sortBy, setSortBy] = useState("date");
 
   // Fetch storage stats
-  const { data: storageStats, isLoading: statsLoading } = useQuery({
+  const { data: storageStats, isLoading: statsLoading } = useQuery<{
+    totalSize: number;
+    totalFiles: number;
+    cleanupEligible: number;
+  }>({
     queryKey: ["/api/stats/storage"],
     retry: false,
   });
 
   // Fetch download requests (completed files)
-  const { data: downloads, isLoading: filesLoading } = useQuery({
+  const { data: downloads, isLoading: filesLoading } = useQuery<any[]>({
     queryKey: ["/api/download-requests"],
     retry: false,
   });

@@ -15,13 +15,18 @@ export function DownloadsTab() {
   const { toast } = useToast();
 
   // Fetch download stats
-  const { data: downloadStats, isLoading: statsLoading } = useQuery({
+  const { data: downloadStats, isLoading: statsLoading } = useQuery<{
+    total: number;
+    inProgress: number;
+    completedToday: number;
+    failed: number;
+  }>({
     queryKey: ["/api/stats/downloads"],
     retry: false,
   });
 
   // Fetch download requests
-  const { data: downloads, isLoading: downloadsLoading, refetch } = useQuery({
+  const { data: downloads, isLoading: downloadsLoading, refetch } = useQuery<any[]>({
     queryKey: ["/api/download-requests"],
     retry: false,
   });

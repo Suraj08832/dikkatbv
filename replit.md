@@ -24,10 +24,11 @@ Preferred communication style: Simple, everyday language.
 - **Development**: Hot reload with Vite integration in development mode
 
 ## Data Storage Solutions
-- **Primary Database**: PostgreSQL using Neon Database service
+- **Primary Database**: PostgreSQL using Supabase (replacing Neon Database)
 - **ORM**: Drizzle ORM for type-safe database operations and migrations
 - **Session Store**: PostgreSQL-backed session storage using connect-pg-simple
 - **Schema Management**: Centralized schema definition with Zod validation
+- **Configuration**: Settings class with API keys for YouTube, Spotify, Instagram, and security settings
 
 ## Authentication and Authorization Mechanisms
 - **Provider**: Replit OIDC (OpenID Connect) for authentication
@@ -39,7 +40,7 @@ Preferred communication style: Simple, everyday language.
 ## External Dependencies
 
 ### Database Services
-- **Neon Database**: Serverless PostgreSQL database with connection pooling
+- **Supabase**: Serverless PostgreSQL database with connection pooling (replaces Neon)
 - **Database Driver**: @neondatabase/serverless for optimized serverless connections
 
 ### Authentication Services  
