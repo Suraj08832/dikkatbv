@@ -181,6 +181,14 @@ export class DatabaseStorage implements IStorage {
       .limit(limit);
   }
 
+  async getDownloadRequest(id: string): Promise<DownloadRequest | undefined> {
+    const [request] = await db
+      .select()
+      .from(downloadRequests)
+      .where(eq(downloadRequests.id, id));
+    return request;
+  }
+
   async getDownloadRequestsByUser(userId: string): Promise<DownloadRequest[]> {
     return await db
       .select()

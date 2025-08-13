@@ -8,7 +8,35 @@ import {
   insertSystemLogSchema,
   insertSystemSettingSchema 
 } from "@shared/schema";
+import { downloadService } from "./downloadService";
 import { z } from "zod";
+
+// API Key validation middleware
+const validateApiKey = async (req: any, res: any, next: any) => {
+  try {
+    const apiKey = req.headers['x-api-key'] || req.headers['authorization']?.replace('Bearer ', '');
+    
+    if (!apiKey) {
+      return res.status(401).json({ message: "API key required" });
+    }
+
+    const keyRecord = await storage.getApiKeyByKey(apiKey);
+    if (!keyRecord) {
+      return res.status(401).json({ message: "Invalid API key" });
+    }
+    
+    if ((keyRecord.requestCount || 0) >= (keyRecord.requestLimit || 10000)) {
+      return res.status(429).json({ message: "Rate limit exceeded" });
+    }
+    
+    await storage.incrementApiKeyUsage(keyRecord.id);
+    req.apiKey = keyRecord;
+    next();
+  } catch (error) {
+    console.error("API key validation error:", error);
+    res.status(500).json({ message: "Authentication failed" });
+  }
+};
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -413,5 +441,65 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   const httpServer = createServer(app);
+  // Public API endpoints (require API key authentication)
+  app.post('/api/search', validateApiKey, async (req: any, res) => {
+    try {
+      const { query, platform = 'all' } = req.body;
+      
+      if (!query) {
+        return res.status(400).json({ message: "Query is required" });
+      }
+
+      const results = await downloadService.searchSongs(query, platform);
+      res.json({ results });
+    } catch (error) {
+      console.error("Search error:", error);
+      res.status(500).json({ message: "Search failed" });
+    }
+  });
+
+  app.post('/api/download', validateApiKey, async (req: any, res) => {
+    try {
+      const { url, title, platform } = req.body;
+      
+      if (!url || !platform) {
+        return res.status(400).json({ message: "URL and platform are required" });
+      }
+
+      const downloadId = await downloadService.startDownload({
+        url,
+        title,
+        platform,
+        userId: req.apiKey.userId,
+        apiKeyId: req.apiKey.id,
+      });
+
+      res.json({ downloadId, message: "Download started" });
+    } catch (error) {
+      console.error("Download error:", error);
+      res.status(500).json({ message: "Download failed" });
+    }
+  });
+
+  app.get('/api/download/:downloadId/status', validateApiKey, async (req: any, res) => {
+    try {
+      const { downloadId } = req.params;
+      const download = await storage.getDownloadRequest(downloadId);
+      
+      if (!download) {
+        return res.status(404).json({ message: "Download not found" });
+      }
+
+      if (download.userId !== req.apiKey.userId) {
+        return res.status(403).json({ message: "Access denied" });
+      }
+
+      res.json(download);
+    } catch (error) {
+      console.error("Status check error:", error);
+      res.status(500).json({ message: "Failed to get download status" });
+    }
+  });
+
   return httpServer;
 }
