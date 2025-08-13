@@ -6,6 +6,19 @@ const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// If running on Heroku, copy local cookies.txt to /tmp to persist across ephemeral filesystem usage
+try {
+  if (process.env.DYNO) {
+    const fs = await import('fs');
+    const path = await import('path');
+    const src = path.resolve('./cookies.txt');
+    const dest = path.resolve('/tmp/cookies.txt');
+    if (fs.existsSync(src)) {
+      fs.copyFileSync(src, dest);
+    }
+  }
+} catch {}
+
 app.use((req, res, next) => {
   const start = Date.now();
   const path = req.path;
