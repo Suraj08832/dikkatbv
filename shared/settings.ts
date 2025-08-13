@@ -34,7 +34,7 @@ export class Settings {
   
   // File Storage
   static readonly DOWNLOAD_PATH = process.env.DOWNLOAD_PATH || "./downloads";
-  static readonly MAX_FILE_SIZE = process.env.MAX_FILE_SIZE || "100MB";
+  static readonly MAX_FILE_SIZE = process.env.MAX_FILE_SIZE || "900MB";
   
   // Rate Limiting
   static readonly RATE_LIMIT_PER_MINUTE = parseInt(process.env.RATE_LIMIT_PER_MINUTE || "60");
